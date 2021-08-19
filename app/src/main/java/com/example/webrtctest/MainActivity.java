@@ -73,10 +73,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
-
+//        final AudioDeviceModule adm = createJavaAudioDevice();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
+//                .setAudioDeviceModule(adm)
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
