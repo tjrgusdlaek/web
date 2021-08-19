@@ -73,11 +73,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
-//        final AudioDeviceModule adm = createJavaAudioDevice();
+        final AudioDeviceModule adm = createJavaAudioDevice();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
-//                .setAudioDeviceModule(adm)
+                .setAudioDeviceModule(adm)
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
@@ -95,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
                         .createInitializationOptions();
         PeerConnectionFactory.initialize(initializationOptions);
 
-        audioConstraints = new MediaConstraints();
-
-
-        //create an AudioSource instance
-        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+//        audioConstraints = new MediaConstraints();
+//
+//
+//        //create an AudioSource instance
+//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
         localView = findViewById(R.id.localView);
         localView.setMirror(true);
@@ -108,7 +108,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         // create VideoTrack
         VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+
 //        // display in localView
         videoTrack.addSink(localView);
 
