@@ -77,10 +77,6 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
-                .setAudioDeviceModule(JavaAudioDeviceModule.builder(getApplicationContext())
-//                        .setUseHardwareAcousticEchoCanceler(setUseHardwareAcousticEchoCanceler)
-                        .createAudioDeviceModule()
-                )
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
@@ -252,4 +248,91 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         return null;
     }
 
+
+    AudioDeviceModule createJavaAudioDevice() {
+        // Enable/disable OpenSL ES playback.
+//        if (!peerConnectionParameters.useOpenSLES) {
+//            Log.w(TAG, "External OpenSLES ADM not implemented yet.");
+//            // TODO(magjed): Add support for external OpenSLES ADM.
+//        }
+
+        // Set audio record error callbacks.
+        AudioRecordErrorCallback audioRecordErrorCallback = new AudioRecordErrorCallback() {
+            @Override
+            public void onWebRtcAudioRecordInitError(String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioRecordInitError: " + errorMessage);
+//                reportError(errorMessage);
+            }
+
+            @Override
+            public void onWebRtcAudioRecordStartError(
+                    JavaAudioDeviceModule.AudioRecordStartErrorCode errorCode, String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioRecordStartError: " + errorCode + ". " + errorMessage);
+//                reportError(errorMessage);
+            }
+
+            @Override
+            public void onWebRtcAudioRecordError(String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioRecordError: " + errorMessage);
+//                reportError(errorMessage);
+            }
+        };
+
+        JavaAudioDeviceModule.AudioTrackErrorCallback audioTrackErrorCallback = new JavaAudioDeviceModule.AudioTrackErrorCallback() {
+            @Override
+            public void onWebRtcAudioTrackInitError(String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioTrackInitError: " + errorMessage);
+//                reportError(errorMessage);
+            }
+
+            @Override
+            public void onWebRtcAudioTrackStartError(
+                    JavaAudioDeviceModule.AudioTrackStartErrorCode errorCode, String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioTrackStartError: " + errorCode + ". " + errorMessage);
+//                reportError(errorMessage);
+            }
+
+            @Override
+            public void onWebRtcAudioTrackError(String errorMessage) {
+                Log.e(TAG, "onWebRtcAudioTrackError: " + errorMessage);
+//                reportError(errorMessage);
+            }
+        };
+
+        // Set audio record state callbacks.
+        JavaAudioDeviceModule.AudioRecordStateCallback audioRecordStateCallback = new JavaAudioDeviceModule.AudioRecordStateCallback() {
+            @Override
+            public void onWebRtcAudioRecordStart() {
+                Log.i(TAG, "Audio recording starts");
+            }
+
+            @Override
+            public void onWebRtcAudioRecordStop() {
+                Log.i(TAG, "Audio recording stops");
+            }
+        };
+
+        // Set audio track state callbacks.
+        JavaAudioDeviceModule.AudioTrackStateCallback audioTrackStateCallback = new JavaAudioDeviceModule.AudioTrackStateCallback() {
+            @Override
+            public void onWebRtcAudioTrackStart() {
+                Log.i(TAG, "Audio playout starts");
+            }
+
+            @Override
+            public void onWebRtcAudioTrackStop() {
+                Log.i(TAG, "Audio playout stops");
+            }
+        };
+
+        return JavaAudioDeviceModule.builder(getApplicationContext())
+//        .setSamplesReadyCallback(saveRecordedAudioToFile)
+//                .setUseHardwareAcousticEchoCanceler(!peerConnectionParameters.disableBuiltInAEC)
+//                .setUseHardwareNoiseSuppressor(!peerConnectionParameters.disableBuiltInNS)
+                .setAudioRecordErrorCallback(audioRecordErrorCallback)
+                .setAudioTrackErrorCallback(audioTrackErrorCallback)
+                .setAudioRecordStateCallback(audioRecordStateCallback)
+                .setAudioTrackStateCallback(audioTrackStateCallback)
+                .createAudioDeviceModule();
+    }
 }
