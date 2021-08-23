@@ -87,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
+
+        //오디오 모듈을 집어넣는다 .
         AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
                 .setUseHardwareAcousticEchoCanceler ( false )
                 .setUseHardwareNoiseSuppressor ( false )
@@ -100,25 +102,22 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
                 .createPeerConnectionFactory();
 
 
-
+        //비디오 트랙 채널과 소스
         SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
-        // create VideoCapturer
         VideoCapturer videoCapturer = createCameraCapturer(true);
         VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-
         videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
         videoCapturer.startCapture(480, 640, 30);
+        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
 
 
         localView = findViewById(R.id.localView);
         localView.setMirror(true);
         localView.init(eglBaseContext, null);
 
-        //비디오 트랙
-        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-        //create an AudioSource instance
-        audioConstraints = new MediaConstraints();
 
+        //오디오 트랙 채널과 소스
+        audioConstraints = new MediaConstraints();
         audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
         localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
