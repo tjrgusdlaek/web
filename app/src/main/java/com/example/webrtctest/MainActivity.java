@@ -75,11 +75,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
-//        final AudioDeviceModule adm = createJavaAudioDevice();
+        final AudioDeviceModule adm = createJavaAudioDevice();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
-//                .setAudioDeviceModule(adm)
+                .setAudioDeviceModule(adm)
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
 
 
-        audioConstraints = new MediaConstraints();
+//        audioConstraints = new MediaConstraints();
 
 
         //create an AudioSource instance
@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
 //        // display in localView
         videoTrack.addSink(localView);
-        localAudioTrack.setVolume(1);
-        localAudioTrack.setEnabled(true);
+//        localAudioTrack.setVolume(1);
+//        localAudioTrack.setEnabled(true);
 
         remoteViews = new SurfaceViewRenderer[]{
                 findViewById(R.id.remoteView),
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
         mediaStream.addTrack(videoTrack);
         //미디어 스트림의 오디오 트랙에 넣기
-        mediaStream.addTrack(localAudioTrack);
+//        mediaStream.addTrack(localAudioTrack);
 
 
         SignalingClient.get().init(this);
