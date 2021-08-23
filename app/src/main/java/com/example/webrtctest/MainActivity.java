@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
         AudioTrack audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
         audioTrack.setEnabled(true);
-        audioTrack.setVolume(10);
+//        audioTrack.setVolume(10);
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
         mediaStream.addTrack(videoTrack);
         mediaStream.addTrack(audioTrack);
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
                     remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]) ;
 //                    remoteVideoTrack.addSink(remoteView) ;
                     remoteAudioTrack.setEnabled(true);
-
+                    remoteAudioTrack.setVolume(10);
 
                 });
             }
