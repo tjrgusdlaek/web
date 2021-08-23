@@ -75,70 +75,72 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         eglBaseContext = EglBase.create().getEglBaseContext();
         // create PeerConnectionFactory
-//        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
-//                .builder(this)
-//                .createInitializationOptions());
-//
-//        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-//
-//        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
-//                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
-//
-//        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
-//                new DefaultVideoDecoderFactory(eglBaseContext);
-//
-////        AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
-////                .setUseHardwareAcousticEchoCanceler ( false )
-////                .setUseHardwareNoiseSuppressor ( false )
-////                .createAudioDeviceModule ();
-//
-//        peerConnectionFactory = PeerConnectionFactory.builder()
-//                .setOptions(options)
-////                .setAudioDeviceModule(audioDeviceModule)
-//                .setVideoEncoderFactory(defaultVideoEncoderFactory)
-//                .setVideoDecoderFactory(defaultVideoDecoderFactory)
-//                .createPeerConnectionFactory();
-//
-//
-//
-//        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
-//        // create VideoCapturer
-//        VideoCapturer videoCapturer = createCameraCapturer(true);
-//        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-//        videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
-//        videoCapturer.startCapture(480, 640, 30);
-//
+        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
+                .builder(this)
+                .createInitializationOptions());
 
-//        localView = findViewById(R.id.localView);
-//        localView.setMirror(true);
-//        localView.init(eglBaseContext, null);
-//
-//        //비디오 트랙
-//        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-//        //create an AudioSource instance
-//        audioConstraints = new MediaConstraints();
-//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-//
-////        // display in localView
-//        videoTrack.addSink(localView);
-//
-//        remoteViews = new SurfaceViewRenderer[]{
-//                findViewById(R.id.remoteView),
-//                findViewById(R.id.remoteView2),
-//                findViewById(R.id.remoteView3),
-//        };
-//        for (SurfaceViewRenderer remoteView : remoteViews) {
-//            remoteView.setMirror(false);
-//            remoteView.init(eglBaseContext, null);
-//        }
-//
-//
-//        mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
-//        //미디어 스트림에 비디오트랙 넣기
-//        mediaStream.addTrack(videoTrack);
-//        //미디어 스트림에 오디오 트랙에 넣기
-//        mediaStream.addTrack(localAudioTrack);
+        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+
+        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
+                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
+
+        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
+                new DefaultVideoDecoderFactory(eglBaseContext);
+
+        AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
+                .setUseHardwareAcousticEchoCanceler ( false )
+                .setUseHardwareNoiseSuppressor ( false )
+                .createAudioDeviceModule ();
+
+        peerConnectionFactory = PeerConnectionFactory.builder()
+                .setOptions(options)
+                .setAudioDeviceModule(audioDeviceModule)
+                .setVideoEncoderFactory(defaultVideoEncoderFactory)
+                .setVideoDecoderFactory(defaultVideoDecoderFactory)
+                .createPeerConnectionFactory();
+
+
+
+        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
+        // create VideoCapturer
+        VideoCapturer videoCapturer = createCameraCapturer(true);
+        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+
+        videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
+        videoCapturer.startCapture(480, 640, 30);
+
+
+        localView = findViewById(R.id.localView);
+        localView.setMirror(true);
+        localView.init(eglBaseContext, null);
+
+        //비디오 트랙
+        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
+        //create an AudioSource instance
+        audioConstraints = new MediaConstraints();
+
+        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+
+//        // display in localView
+        videoTrack.addSink(localView);
+
+        remoteViews = new SurfaceViewRenderer[]{
+                findViewById(R.id.remoteView),
+                findViewById(R.id.remoteView2),
+                findViewById(R.id.remoteView3),
+        };
+        for (SurfaceViewRenderer remoteView : remoteViews) {
+            remoteView.setMirror(false);
+            remoteView.init(eglBaseContext, null);
+        }
+
+
+        mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
+        //미디어 스트림에 비디오트랙 넣기
+        mediaStream.addTrack(videoTrack);
+        //미디어 스트림에 오디오 트랙에 넣기
+        mediaStream.addTrack(localAudioTrack);
 
 
 
@@ -148,63 +150,65 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setSpeakerphoneOn(true);
 
-        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
-                .builder(this)
-                .createInitializationOptions());
-        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
-                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
-        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
-                new DefaultVideoDecoderFactory(eglBaseContext);
-        peerConnectionFactory = PeerConnectionFactory.builder()
-                .setOptions(options)
-                .setVideoEncoderFactory(defaultVideoEncoderFactory)
-                .setVideoDecoderFactory(defaultVideoDecoderFactory)
-                .createPeerConnectionFactory();
-
-        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
-        // create VideoCapturer
-        VideoCapturer videoCapturer = createCameraCapturer(true);
-        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-        videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
-        videoCapturer.startCapture(480, 640, 30);
-
-        localView = findViewById(R.id.localView);
-        localView.setMirror(true);
-        localView.init(eglBaseContext, null);
-
-        // create VideoTrack
-        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-//        // display in localView
-        videoTrack.addSink(localView);
 
 
-                remoteViews = new SurfaceViewRenderer[]{
-                findViewById(R.id.remoteView),
-                findViewById(R.id.remoteView2),
-                findViewById(R.id.remoteView3),
-        };
-        for (SurfaceViewRenderer remoteView : remoteViews) {
-            remoteView.setMirror(false);
-            remoteView.init(eglBaseContext, null);
-        }
-        audioConstraints = new MediaConstraints();
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false"));
-        audioConstraints.mandatory.add(
-                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false"));
-
-        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-        AudioTrack audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-//        audioTrack.setEnabled(true);
-//        audioTrack.setVolume(10);
-        mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
-        mediaStream.addTrack(videoTrack);
-        mediaStream.addTrack(audioTrack);
+//        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
+//                .builder(this)
+//                .createInitializationOptions());
+//        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+//        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
+//                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
+//        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
+//                new DefaultVideoDecoderFactory(eglBaseContext);
+//        peerConnectionFactory = PeerConnectionFactory.builder()
+//                .setOptions(options)
+//                .setVideoEncoderFactory(defaultVideoEncoderFactory)
+//                .setVideoDecoderFactory(defaultVideoDecoderFactory)
+//                .createPeerConnectionFactory();
+//
+//        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
+//        // create VideoCapturer
+//        VideoCapturer videoCapturer = createCameraCapturer(true);
+//        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+//        videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
+//        videoCapturer.startCapture(480, 640, 30);
+//
+//        localView = findViewById(R.id.localView);
+//        localView.setMirror(true);
+//        localView.init(eglBaseContext, null);
+//
+//        // create VideoTrack
+//        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
+////        // display in localView
+//        videoTrack.addSink(localView);
+//
+//
+//                remoteViews = new SurfaceViewRenderer[]{
+//                findViewById(R.id.remoteView),
+//                findViewById(R.id.remoteView2),
+//                findViewById(R.id.remoteView3),
+//        };
+//        for (SurfaceViewRenderer remoteView : remoteViews) {
+//            remoteView.setMirror(false);
+//            remoteView.init(eglBaseContext, null);
+//        }
+//        audioConstraints = new MediaConstraints();
+//        audioConstraints.mandatory.add(
+//                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
+//        audioConstraints.mandatory.add(
+//                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
+//        audioConstraints.mandatory.add(
+//                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false"));
+//        audioConstraints.mandatory.add(
+//                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
+//
+//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+//        AudioTrack audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+////        audioTrack.setEnabled(true);
+//        audioTrack.setVolume(1);
+//        mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
+//        mediaStream.addTrack(videoTrack);
+//        mediaStream.addTrack(audioTrack);
 
         SignalingClient.get().init(this);
     }
