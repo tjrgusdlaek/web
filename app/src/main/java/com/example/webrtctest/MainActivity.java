@@ -38,6 +38,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SignalingClient.Callback {
     MediaConstraints audioConstraints;
+    MediaConstraints sdpConstraints;
+
     EglBase.Context eglBaseContext;
     PeerConnectionFactory peerConnectionFactory;
     SurfaceViewRenderer localView;
@@ -90,10 +92,6 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         videoCapturer.startCapture(480, 640, 30);
 
 
-        PeerConnectionFactory.InitializationOptions initializationOptions =
-                PeerConnectionFactory.InitializationOptions.builder(this)
-                        .createInitializationOptions();
-        PeerConnectionFactory.initialize(initializationOptions);
 
         audioConstraints = new MediaConstraints();
 
@@ -112,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
 //        // display in localView
         videoTrack.addSink(localView);
-
-
+        localAudioTrack.setVolume(1);
+        localAudioTrack.setEnabled(true);
 
         remoteViews = new SurfaceViewRenderer[]{
                 findViewById(R.id.remoteView),
@@ -128,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
         mediaStream.addTrack(videoTrack);
+        //미디어 스트림의 오디오 트랙에 넣기
         mediaStream.addTrack(localAudioTrack);
 
 
@@ -151,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
             public void onAddStream(MediaStream mediaStream) {
                 super.onAddStream(mediaStream);
                 VideoTrack remoteVideoTrack = mediaStream.videoTracks.get(0);
+//                AudioTrack remoteAudioTrack = mediaStream.audioTracks.get(0);
                 runOnUiThread(() -> {
                     remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]);
                 });
@@ -254,10 +254,10 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
     AudioDeviceModule createJavaAudioDevice() {
         // Enable/disable OpenSL ES playback.
-//        if (!peerConnectionParameters.useOpenSLES) {
-//            Log.w(TAG, "External OpenSLES ADM not implemented yet.");
-//            // TODO(magjed): Add support for external OpenSLES ADM.
-//        }
+        if (true) {
+            Log.w(TAG, "External OpenSLES ADM not implemented yet.");
+            // TODO(magjed): Add support for external OpenSLES ADM.
+        }
 
         // Set audio record error callbacks.
         AudioRecordErrorCallback audioRecordErrorCallback = new AudioRecordErrorCallback() {
@@ -330,8 +330,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         return JavaAudioDeviceModule.builder(getApplicationContext())
 //        .setSamplesReadyCallback(saveRecordedAudioToFile)
-//                .setUseHardwareAcousticEchoCanceler(!peerConnectionParameters.disableBuiltInAEC)
-//                .setUseHardwareNoiseSuppressor(!peerConnectionParameters.disableBuiltInNS)
+                .setUseHardwareAcousticEchoCanceler(true)
+                .setUseHardwareNoiseSuppressor(true)
                 .setAudioRecordErrorCallback(audioRecordErrorCallback)
                 .setAudioTrackErrorCallback(audioTrackErrorCallback)
                 .setAudioRecordStateCallback(audioRecordStateCallback)
