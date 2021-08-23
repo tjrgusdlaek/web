@@ -31,22 +31,25 @@ import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordErrorCallback;
 import org.webrtc.voiceengine.WebRtcAudioEffects;
+import org.webrtc.voiceengine.WebRtcAudioUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements SignalingClient.Callback {
     MediaConstraints audioConstraints;
-    MediaConstraints sdpConstraints;
+    AudioSource audioSource;
+    AudioTrack localAudioTrack;
+
 
     EglBase.Context eglBaseContext;
     PeerConnectionFactory peerConnectionFactory;
     SurfaceViewRenderer localView;
     MediaStream mediaStream;
     List<PeerConnection.IceServer> iceServers;
-    AudioSource audioSource;
-    AudioTrack localAudioTrack;
+
     HashMap<String, PeerConnection> peerConnectionMap;
     SurfaceViewRenderer[] remoteViews;
     int remoteViewsIndex = 0;
@@ -75,14 +78,19 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
-        final AudioDeviceModule adm = createJavaAudioDevice();
+        AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
+                .setUseHardwareAcousticEchoCanceler ( false )
+                .setUseHardwareNoiseSuppressor ( false )
+                .createAudioDeviceModule ();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
-                .setAudioDeviceModule(adm)
+                .setAudioDeviceModule(audioDeviceModule)
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
+
+
 
         SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
         // create VideoCapturer
@@ -91,44 +99,53 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
         videoCapturer.startCapture(480, 640, 30);
 
+        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor ( true );
+        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler ( true );
+        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl ( true );
 
+//        MediaConstraints localMediaConstraints = new MediaConstraints ();
+//        AudioSource localAudioSource = peerConnectionFactory.createAudioSource ( localMediaConstraints );
+//        localTrack = peerConnectionFactory.createAudioTrack ( LOCAL_AUDIO_TRACK, localAudioSource );
+//        localTrack.setEnabled ( true );
+//        localMediaStream = peerConnectionFactory.createLocalMediaStream ( LOCAL_STREAM );
+//        localMediaStream.addTrack ( localTrack );
+//        peerConnection.addStream ( localMediaStream );
 
-//        audioConstraints = new MediaConstraints();
-
-
-        //create an AudioSource instance
-//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
         localView = findViewById(R.id.localView);
         localView.setMirror(true);
         localView.init(eglBaseContext, null);
 
-        // create VideoTrack
+        //비디오 트랙
         VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
+        //create an AudioSource instance
+//        audioConstraints = new MediaConstraints();
+//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
 //        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+//        localAudioTrack.setVolume(10);
+//        localAudioTrack.setEnabled(true);
+
 
 //        // display in localView
         videoTrack.addSink(localView);
-//        localAudioTrack.setVolume(1);
-//        localAudioTrack.setEnabled(true);
 
         remoteViews = new SurfaceViewRenderer[]{
                 findViewById(R.id.remoteView),
                 findViewById(R.id.remoteView2),
                 findViewById(R.id.remoteView3),
         };
-        for(SurfaceViewRenderer remoteView : remoteViews) {
+        for (SurfaceViewRenderer remoteView : remoteViews) {
             remoteView.setMirror(false);
             remoteView.init(eglBaseContext, null);
         }
 
 
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
+        //미디어 스트림에 비디오트랙 넣기
         mediaStream.addTrack(videoTrack);
-        //미디어 스트림의 오디오 트랙에 넣기
+        //미디어 스트림에 오디오 트랙에 넣기
 //        mediaStream.addTrack(localAudioTrack);
-
+        Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
 
         SignalingClient.get().init(this);
     }
@@ -136,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
     private synchronized PeerConnection getOrCreatePeerConnection(String socketId) {
         PeerConnection peerConnection = peerConnectionMap.get(socketId);
-        if(peerConnection != null) {
+        if (peerConnection != null) {
             return peerConnection;
         }
         peerConnection = peerConnectionFactory.createPeerConnection(iceServers, new PeerConnectionAdapter("PC:" + socketId) {
@@ -150,9 +167,14 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
             public void onAddStream(MediaStream mediaStream) {
                 super.onAddStream(mediaStream);
                 VideoTrack remoteVideoTrack = mediaStream.videoTracks.get(0);
+                Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
+                Log.d("onAddStreamRemote", ""+ remoteVideoTrack);
 //                AudioTrack remoteAudioTrack = mediaStream.audioTracks.get(0);
                 runOnUiThread(() -> {
-                    remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]);
+                    remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]) ;
+//                    remoteAudioTrack.setEnabled(true);
+
+
                 });
             }
         });
@@ -252,90 +274,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     }
 
 
+
     AudioDeviceModule createJavaAudioDevice() {
-        // Enable/disable OpenSL ES playback.
-        if (true) {
-            Log.w(TAG, "External OpenSLES ADM not implemented yet.");
-            // TODO(magjed): Add support for external OpenSLES ADM.
-        }
-
-        // Set audio record error callbacks.
-        AudioRecordErrorCallback audioRecordErrorCallback = new AudioRecordErrorCallback() {
-            @Override
-            public void onWebRtcAudioRecordInitError(String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioRecordInitError: " + errorMessage);
-//                reportError(errorMessage);
-            }
-
-            @Override
-            public void onWebRtcAudioRecordStartError(
-                    JavaAudioDeviceModule.AudioRecordStartErrorCode errorCode, String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioRecordStartError: " + errorCode + ". " + errorMessage);
-//                reportError(errorMessage);
-            }
-
-            @Override
-            public void onWebRtcAudioRecordError(String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioRecordError: " + errorMessage);
-//                reportError(errorMessage);
-            }
-        };
-
-        JavaAudioDeviceModule.AudioTrackErrorCallback audioTrackErrorCallback = new JavaAudioDeviceModule.AudioTrackErrorCallback() {
-            @Override
-            public void onWebRtcAudioTrackInitError(String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioTrackInitError: " + errorMessage);
-//                reportError(errorMessage);
-            }
-
-            @Override
-            public void onWebRtcAudioTrackStartError(
-                    JavaAudioDeviceModule.AudioTrackStartErrorCode errorCode, String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioTrackStartError: " + errorCode + ". " + errorMessage);
-//                reportError(errorMessage);
-            }
-
-            @Override
-            public void onWebRtcAudioTrackError(String errorMessage) {
-                Log.e(TAG, "onWebRtcAudioTrackError: " + errorMessage);
-//                reportError(errorMessage);
-            }
-        };
-
-        // Set audio record state callbacks.
-        JavaAudioDeviceModule.AudioRecordStateCallback audioRecordStateCallback = new JavaAudioDeviceModule.AudioRecordStateCallback() {
-            @Override
-            public void onWebRtcAudioRecordStart() {
-                Log.i(TAG, "Audio recording starts");
-            }
-
-            @Override
-            public void onWebRtcAudioRecordStop() {
-                Log.i(TAG, "Audio recording stops");
-            }
-        };
-
-        // Set audio track state callbacks.
-        JavaAudioDeviceModule.AudioTrackStateCallback audioTrackStateCallback = new JavaAudioDeviceModule.AudioTrackStateCallback() {
-            @Override
-            public void onWebRtcAudioTrackStart() {
-                Log.i(TAG, "Audio playout starts");
-            }
-
-            @Override
-            public void onWebRtcAudioTrackStop() {
-                Log.i(TAG, "Audio playout stops");
-            }
-        };
-
         return JavaAudioDeviceModule.builder(getApplicationContext())
-//        .setSamplesReadyCallback(saveRecordedAudioToFile)
-                .setUseHardwareAcousticEchoCanceler(true)
-                .setUseHardwareNoiseSuppressor(true)
-                .setAudioRecordErrorCallback(audioRecordErrorCallback)
-                .setAudioTrackErrorCallback(audioTrackErrorCallback)
-                .setAudioRecordStateCallback(audioRecordStateCallback)
-                .setAudioTrackStateCallback(audioTrackStateCallback)
+                .setUseHardwareAcousticEchoCanceler(false)
+                .setUseHardwareNoiseSuppressor(false)
                 .createAudioDeviceModule();
     }
 }
