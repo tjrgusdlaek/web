@@ -78,14 +78,14 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         DefaultVideoDecoderFactory defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
-        AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
-                .setUseHardwareAcousticEchoCanceler ( false )
-                .setUseHardwareNoiseSuppressor ( false )
-                .createAudioDeviceModule ();
+//        AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder ( getApplicationContext() )
+//                .setUseHardwareAcousticEchoCanceler ( false )
+//                .setUseHardwareNoiseSuppressor ( false )
+//                .createAudioDeviceModule ();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
-                .setAudioDeviceModule(audioDeviceModule)
+//                .setAudioDeviceModule(audioDeviceModule)
                 .setVideoEncoderFactory(defaultVideoEncoderFactory)
                 .setVideoDecoderFactory(defaultVideoDecoderFactory)
                 .createPeerConnectionFactory();
@@ -118,11 +118,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         //비디오 트랙
         VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
         //create an AudioSource instance
-//        audioConstraints = new MediaConstraints();
-//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-//        localAudioTrack.setVolume(1);
-//        localAudioTrack.setEnabled(true);
+        audioConstraints = new MediaConstraints();
+        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+        localAudioTrack.setVolume(10);
+        localAudioTrack.setEnabled(true);
 
 
 //        // display in localView
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         //미디어 스트림에 비디오트랙 넣기
         mediaStream.addTrack(videoTrack);
         //미디어 스트림에 오디오 트랙에 넣기
-//        mediaStream.addTrack(localAudioTrack);
+        mediaStream.addTrack(localAudioTrack);
         Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
 
         SignalingClient.get().init(this);
