@@ -99,10 +99,9 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
         videoCapturer.startCapture(480, 640, 30);
 
-        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor ( true );
-        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler ( true );
-        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl ( true );
-
+//        WebRtcAudioUtils.setWebRtcBasedNoiseSuppressor ( true );
+//        WebRtcAudioUtils.setWebRtcBasedAcousticEchoCanceler ( true );
+//        WebRtcAudioUtils.setWebRtcBasedAutomaticGainControl ( true );
 //        MediaConstraints localMediaConstraints = new MediaConstraints ();
 //        AudioSource localAudioSource = peerConnectionFactory.createAudioSource ( localMediaConstraints );
 //        localTrack = peerConnectionFactory.createAudioTrack ( LOCAL_AUDIO_TRACK, localAudioSource );
@@ -122,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 //        audioConstraints = new MediaConstraints();
 //        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
 //        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-//        localAudioTrack.setVolume(10);
+//        localAudioTrack.setVolume(1);
 //        localAudioTrack.setEnabled(true);
 
 
