@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         // create VideoTrack
         VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
 //        // display in localView
         videoTrack.addSink(localView);
