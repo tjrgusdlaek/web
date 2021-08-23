@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         AudioManager am;
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.setMode(AudioManager.MODE_NORMAL);
+        am.setSpeakerphoneOn(true);
 
         PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
                 .builder(this)
