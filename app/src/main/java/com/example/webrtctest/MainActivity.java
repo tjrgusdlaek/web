@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
 
         //create an AudioSource instance
-        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
+//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
+//        localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
         localView = findViewById(R.id.localView);
         localView.setMirror(true);
