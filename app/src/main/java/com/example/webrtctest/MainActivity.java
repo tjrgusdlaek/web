@@ -143,10 +143,9 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         mediaStream.addTrack(localAudioTrack);
 
 
-//        AudioManager am;
-//
-//        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-//        am.setSpeakerphoneOn(true);
+        AudioManager am;
+        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        am.setSpeakerphoneOn(true);
 
 
         SignalingClient.get().init(this);
