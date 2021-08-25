@@ -23,9 +23,18 @@ import javax.net.ssl.X509TrustManager;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 public class SignalingClient {
+    private String TAG = "MAIN_ACTIVITY_SIGNALING";
         private static SignalingClient instance;
-        private SignalingClient(){}
-        public static SignalingClient get() {
+        private String mRoomName;
+
+        private SignalingClient(){
+
+
+        }
+
+
+
+    public static SignalingClient get( ) {
             if(instance == null) {
                 synchronized (SignalingClient.class) {
                     if(instance == null) {
@@ -37,7 +46,7 @@ public class SignalingClient {
         }
 
         private Socket socket;
-        private String room = "OldPlace";
+//        private String room = "OldPlace";
         private Callback callback;
 
         private final TrustManager[] trustAll = new TrustManager[]{
@@ -59,7 +68,10 @@ public class SignalingClient {
                 }
         };
 
-        public void init(Callback callback) {
+        public void init(Callback callback , String roomName) {
+            Log.d(TAG ,"init");
+            mRoomName = roomName;
+            Log.d(TAG ,"mRoomName: "+mRoomName);
             this.callback = callback;
             try {
                 SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -70,31 +82,40 @@ public class SignalingClient {
                 socket = IO.socket("https://3.35.236.251:8080");
                 socket.connect();
 
-                socket.emit("create or join", room);
+                socket.emit("create or join", roomName);
+                Log.d(TAG ,"create or join");
 
                 socket.on("created", args -> {
+                    Log.d(TAG ,"created");
                     Log.e("chao", "room created:" + socket.id());
                     callback.onCreateRoom();
                 });
                 socket.on("full", args -> {
+                    Log.d(TAG ,"full");
                     Log.e("chao", "room full");
                 });
                 socket.on("join", args -> {
+                    Log.d(TAG ,"join");
                     Log.e("chao", "peer joined " + Arrays.toString(args));
                     callback.onPeerJoined(String.valueOf(args[1]));
                 });
                 socket.on("joined", args -> {
+                    Log.d(TAG ,"joined");
                     Log.e("chao", "self joined:" + socket.id());
                     callback.onSelfJoined();
                 });
                 socket.on("log", args -> {
+                    Log.d(TAG ,"log");
                     Log.e("chao", "log call " + Arrays.toString(args));
                 });
                 socket.on("bye", args -> {
+                    Log.d(TAG ,"bye");
                     Log.e("chao", "bye " + args[0]);
-                    callback.onPeerLeave((String) args[0]);
+//                    callback.onPeerLeave((String) args[0]);
+                    destroy();
                 });
                 socket.on("message", args -> {
+                    Log.d(TAG ,"message");
                     Log.e("chao", "message " + Arrays.toString(args));
                     Object arg = args[0];
                     if(arg instanceof String) {
@@ -102,6 +123,7 @@ public class SignalingClient {
                     } else if(arg instanceof JSONObject) {
                         JSONObject data = (JSONObject) arg;
                         String type = data.optString("type");
+                        Log.d(TAG ,"message"+type);
                         if("offer".equals(type)) {
                             callback.onOfferReceived(data);
                         } else if("answer".equals(type)) {
@@ -109,6 +131,9 @@ public class SignalingClient {
                         } else if("candidate".equals(type)) {
                             callback.onIceCandidateReceived(data);
                         }
+//                        else if ("bye".equals(type)){
+//                            callback.onPeerLeave((String) args[0]);
+//                        }
                     }
                 });
             } catch (NoSuchAlgorithmException e) {
@@ -121,20 +146,28 @@ public class SignalingClient {
         }
 
         public void destroy() {
+            Log.d(TAG ,"destroy");
+
             socket.emit("bye", socket.id());
             socket.disconnect();
             socket.close();
             instance = null;
         }
 
+
+
         public void sendIceCandidate(IceCandidate iceCandidate, String to) {
+            Log.d(TAG ,"sendIceCandidate" +to.toString());
+//            Log.d(TAG ,"sendSessionDescription" +iceCandidate.toString());
             JSONObject jo = new JSONObject();
+
             try {
                 jo.put("type", "candidate");
                 jo.put("label", iceCandidate.sdpMLineIndex);
                 jo.put("id", iceCandidate.sdpMid);
                 jo.put("candidate", iceCandidate.sdp);
                 jo.put("from", socket.id());
+                jo.put("room", mRoomName);
                 jo.put("to", to);
 
                 socket.emit("message", jo);
@@ -144,6 +177,8 @@ public class SignalingClient {
         }
 
         public void sendSessionDescription(SessionDescription sdp, String to) {
+            Log.d(TAG ,"sendSessionDescription" +to.toString());
+//            Log.d(TAG ,"sendSessionDescription" +sdp.toString());
             JSONObject jo = new JSONObject();
             try {
                 jo.put("type", sdp.type.canonicalForm());

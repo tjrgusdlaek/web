@@ -2,13 +2,9 @@ package com.example.webrtctest;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONObject;
 import org.webrtc.AudioSource;
@@ -26,48 +22,35 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
-import org.webrtc.VideoDecoderFactory;
-import org.webrtc.VideoEncoderFactory;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
-import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordErrorCallback;
-import org.webrtc.voiceengine.WebRtcAudioEffects;
-import org.webrtc.voiceengine.WebRtcAudioUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements SignalingClient.Callback {
+public class JoinActivity extends AppCompatActivity implements SignalingClient.Callback{
     MediaConstraints audioConstraints;
     AudioSource audioSource;
     AudioTrack localAudioTrack;
-
-
+    SurfaceViewRenderer remoteView;
+    String roomName ;
+    private String TAG = "JOIN_ACTIVITY";
     EglBase.Context eglBaseContext;
     PeerConnectionFactory peerConnectionFactory;
-
+    PeerConnection peerConnection;
     MediaStream mediaStream;
     List<PeerConnection.IceServer> iceServers;
 
     HashMap<String, PeerConnection> peerConnectionMap;
     SurfaceViewRenderer[] remoteViews;
     SurfaceViewRenderer localView;
-//    SurfaceViewRenderer remoteView;
-    int remoteViewsIndex = 0;
-    String roomName;
-    private String TAG = "MAIN_ACTIVITY";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Log.d(TAG ,"ONCREATE");
-//        roomName = "roomtest";
+        setContentView(R.layout.activity_join);
 
         Intent getintent = getIntent();
         roomName =getintent.getStringExtra("roomName");
@@ -75,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         peerConnectionMap = new HashMap<>();
         iceServers = new ArrayList<>();
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
+
 
         eglBaseContext = EglBase.create().getEglBaseContext();
         // create PeerConnectionFactory
@@ -115,11 +99,6 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
 
 
-        localView = findViewById(R.id.localView);
-        localView.setMirror(true);
-        localView.init(eglBaseContext, null);
-
-
         //오디오 트랙 채널과 소스
         audioConstraints = new MediaConstraints();
         //        audioConstraints.mandatory.add(
@@ -134,44 +113,25 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
         localAudioTrack.setVolume(0);
 
-        //로컬뷰
-        videoTrack.addSink(localView);
-
-        //리모트뷰 
-        remoteViews = new SurfaceViewRenderer[]{
-                findViewById(R.id.remoteView),
-                findViewById(R.id.remoteView2),
-                findViewById(R.id.remoteView3),
-        };
-        for (SurfaceViewRenderer remoteView : remoteViews) {
-            remoteView.setMirror(false);
-            remoteView.init(eglBaseContext, null);
-        }
 
 
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
         //미디어 스트림에 비디오트랙 넣기
-        mediaStream.addTrack(videoTrack);
-        //미디어 스트림에 오디오 트랙에 넣기
-        mediaStream.addTrack(localAudioTrack);
+//        mediaStream.addTrack(videoTrack);
+//        //미디어 스트림에 오디오 트랙에 넣기
+//        mediaStream.addTrack(localAudioTrack);
 
-
-
-//        Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
-        AudioManager am;
-
-        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.setSpeakerphoneOn(true);
-
+        remoteView =findViewById(R.id.remoteView);
+        remoteView.setMirror(true);
+        remoteView.init(eglBaseContext, null);
 
         SignalingClient.get().init(this,roomName);
     }
 
-
     private synchronized PeerConnection getOrCreatePeerConnection(String socketId) {
 
-//        Log.d(TAG ,"getOrCreatePeerConnection");
-        PeerConnection peerConnection = peerConnectionMap.get(socketId);
+        Log.d(TAG ,"getOrCreatePeerConnection");
+        peerConnection = peerConnectionMap.get(socketId);
         if (peerConnection != null) {
             return peerConnection;
         }
@@ -187,8 +147,10 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
                 super.onAddStream(mediaStream);
 
                 VideoTrack remoteVideoTrack = mediaStream.videoTracks.get(0);
+                Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
+                Log.d("onAddStreamRemote", ""+ remoteVideoTrack);
                 runOnUiThread(() -> {
-//                    remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]) ;
+                    remoteVideoTrack.addSink(remoteView) ;
 
                 });
             }
@@ -197,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         peerConnectionMap.put(socketId, peerConnection);
         return peerConnection;
     }
+
 
     @Override
     public void onCreateRoom() {
@@ -225,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     @Override
     public void onPeerLeave(String msg) {
         Log.d(TAG ,"onPeerLeave");
-
 
     }
 
@@ -276,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     protected void onDestroy() {
         Log.d(TAG ,"onDestroy");
         super.onDestroy();
+        peerConnectionMap.clear();
         SignalingClient.get().destroy();
     }
 
