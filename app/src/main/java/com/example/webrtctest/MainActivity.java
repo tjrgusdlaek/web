@@ -121,9 +121,10 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
         localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
 
-//        // display in localView
+        //로컬뷰
         videoTrack.addSink(localView);
 
+        //리모트뷰 
         remoteViews = new SurfaceViewRenderer[]{
                 findViewById(R.id.remoteView),
                 findViewById(R.id.remoteView2),
@@ -142,72 +143,11 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         mediaStream.addTrack(localAudioTrack);
 
 
+//        AudioManager am;
+//
+//        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        am.setSpeakerphoneOn(true);
 
-//        Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
-        AudioManager am;
-
-        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.setSpeakerphoneOn(true);
-
-
-
-//        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions
-//                .builder(this)
-//                .createInitializationOptions());
-//        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-//        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
-//                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
-//        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
-//                new DefaultVideoDecoderFactory(eglBaseContext);
-//        peerConnectionFactory = PeerConnectionFactory.builder()
-//                .setOptions(options)
-//                .setVideoEncoderFactory(defaultVideoEncoderFactory)
-//                .setVideoDecoderFactory(defaultVideoDecoderFactory)
-//                .createPeerConnectionFactory();
-//
-//        SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
-//        // create VideoCapturer
-//        VideoCapturer videoCapturer = createCameraCapturer(true);
-//        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-//        videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
-//        videoCapturer.startCapture(480, 640, 30);
-//
-//        localView = findViewById(R.id.localView);
-//        localView.setMirror(true);
-//        localView.init(eglBaseContext, null);
-//
-//        // create VideoTrack
-//        VideoTrack videoTrack = peerConnectionFactory.createVideoTrack("100", videoSource);
-////        // display in localView
-//        videoTrack.addSink(localView);
-//
-//
-//                remoteViews = new SurfaceViewRenderer[]{
-//                findViewById(R.id.remoteView),
-//                findViewById(R.id.remoteView2),
-//                findViewById(R.id.remoteView3),
-//        };
-//        for (SurfaceViewRenderer remoteView : remoteViews) {
-//            remoteView.setMirror(false);
-//            remoteView.init(eglBaseContext, null);
-//        }
-//        audioConstraints = new MediaConstraints();
-//        audioConstraints.mandatory.add(
-//                new MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "true"));
-//        audioConstraints.mandatory.add(
-//                new MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false"));
-//        audioConstraints.mandatory.add(
-//                new MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false"));
-//        audioConstraints.mandatory.add(
-//                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
-//
-//        audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
-//        AudioTrack audioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-////        audioTrack.setEnabled(true);
-//        audioTrack.setVolume(1);
-//        mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
-//        mediaStream.addTrack(videoTrack);
-//        mediaStream.addTrack(audioTrack);
 
         SignalingClient.get().init(this);
     }
@@ -230,15 +170,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
                 super.onAddStream(mediaStream);
 
                 VideoTrack remoteVideoTrack = mediaStream.videoTracks.get(0);
-                Log.d("onAddStreamRemote", ""+ mediaStream.videoTracks.get(0).toString());
-                Log.d("onAddStreamRemote", ""+ remoteVideoTrack);
-                AudioTrack remoteAudioTrack = mediaStream.audioTracks.get(0);
                 runOnUiThread(() -> {
                     remoteVideoTrack.addSink(remoteViews[remoteViewsIndex++]) ;
-//                    remoteVideoTrack.addSink(remoteView) ;
-//                    remoteAudioTrack.setEnabled(true);
-//                    remoteAudioTrack.setVolume(10);
-
                 });
             }
         });
