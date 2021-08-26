@@ -26,6 +26,7 @@ public class RoomMake extends AppCompatActivity {
                 String roomName = et_roomName.getText().toString();
                 Intent intent = new Intent(RoomMake.this ,MainActivity.class);
                 intent.putExtra("roomName",roomName);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
         });
@@ -36,6 +37,7 @@ public class RoomMake extends AppCompatActivity {
                 String roomName = et_roomName.getText().toString();
                 Intent intent = new Intent(RoomMake.this ,JoinActivity.class);
                 intent.putExtra("roomName",roomName);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
         });

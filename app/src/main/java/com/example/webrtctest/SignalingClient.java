@@ -105,14 +105,14 @@ public class SignalingClient {
                     callback.onSelfJoined();
                 });
                 socket.on("log", args -> {
-                    Log.d(TAG ,"log");
+                    Log.d(TAG ,TAG+"log");
                     Log.e("chao", "log call " + Arrays.toString(args));
                 });
                 socket.on("bye", args -> {
                     Log.d(TAG ,"bye");
                     Log.e("chao", "bye " + args[0]);
-//                    callback.onPeerLeave((String) args[0]);
-                    destroy();
+                    callback.onPeerLeave((String) args[0]);
+
                 });
                 socket.on("message", args -> {
                     Log.d(TAG ,"message");
@@ -131,9 +131,6 @@ public class SignalingClient {
                         } else if("candidate".equals(type)) {
                             callback.onIceCandidateReceived(data);
                         }
-//                        else if ("bye".equals(type)){
-//                            callback.onPeerLeave((String) args[0]);
-//                        }
                     }
                 });
             } catch (NoSuchAlgorithmException e) {
@@ -147,10 +144,22 @@ public class SignalingClient {
 
         public void destroy() {
             Log.d(TAG ,"destroy");
+//            socket.emit("bye", socket.id() ,mRoomName);
 
-            socket.emit("bye", socket.id());
+            JSONObject jo = new JSONObject();
+            try {
+
+                jo.put("from", socket.id());
+                jo.put("room", mRoomName);
+
+                socket.emit("bye", jo);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             socket.disconnect();
             socket.close();
+            socket.off();
             instance = null;
         }
 

@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 //                new MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "true"));
         audioSource = peerConnectionFactory.createAudioSource(audioConstraints);
         localAudioTrack = peerConnectionFactory.createAudioTrack("101", audioSource);
-        localAudioTrack.setVolume(0);
+        localAudioTrack.setVolume(10);
 
         //로컬뷰
         videoTrack.addSink(localView);
@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setSpeakerphoneOn(true);
 
+        Log.d("PeerHashMap" ," "+peerConnectionMap);
 
         SignalingClient.get().init(this,roomName);
     }
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
     private synchronized PeerConnection getOrCreatePeerConnection(String socketId) {
 
-//        Log.d(TAG ,"getOrCreatePeerConnection");
+        Log.d(TAG ,"getOrCreatePeerConnection");
         PeerConnection peerConnection = peerConnectionMap.get(socketId);
         if (peerConnection != null) {
             return peerConnection;
@@ -225,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     @Override
     public void onPeerLeave(String msg) {
         Log.d(TAG ,"onPeerLeave");
-
+        Log.d(TAG ,"msg");
 
     }
 
@@ -276,8 +277,10 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     protected void onDestroy() {
         Log.d(TAG ,"onDestroy");
         super.onDestroy();
+        Log.d("PeerHashMap" ," "+peerConnectionMap);
         SignalingClient.get().destroy();
     }
+
 
     private VideoCapturer createCameraCapturer(boolean isFront) {
         Log.d(TAG ,"createCameraCapturer");
