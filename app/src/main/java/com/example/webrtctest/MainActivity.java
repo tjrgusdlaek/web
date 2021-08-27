@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
     MediaStream mediaStream;
     List<PeerConnection.IceServer> iceServers;
-
+    PeerConnection peerConnection;
     HashMap<String, PeerConnection> peerConnectionMap;
     SurfaceViewRenderer[] remoteViews;
     SurfaceViewRenderer localView;
@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     private synchronized PeerConnection getOrCreatePeerConnection(String socketId) {
 
         Log.d(TAG ,"getOrCreatePeerConnection");
-        PeerConnection peerConnection = peerConnectionMap.get(socketId);
+         peerConnection = peerConnectionMap.get(socketId);
         if (peerConnection != null) {
             return peerConnection;
         }
@@ -279,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         super.onDestroy();
         Log.d("PeerHashMap" ," "+peerConnectionMap);
         SignalingClient.get().destroy();
+        peerConnection.dispose();
     }
 
 
