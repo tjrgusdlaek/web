@@ -15,6 +15,7 @@ import org.webrtc.Camera1Enumerator;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
+import org.webrtc.EglBase10;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
@@ -46,6 +47,7 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
     MediaStream mediaStream;
     List<PeerConnection.IceServer> iceServers;
     VideoTrack remoteVideoTrack;
+
     HashMap<String, PeerConnection> peerConnectionMap;
     SurfaceViewRenderer[] remoteViews;
     SurfaceViewRenderer localView;
@@ -154,6 +156,7 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
             @Override
             public void onAddStream(MediaStream mediaStream) {
                 super.onAddStream(mediaStream);
+//                thread = true;
                 remoteVideoTrack = mediaStream.videoTracks.get(0);
                 Log.d("onAddStreamRemote", "" + mediaStream.videoTracks.get(0).toString());
                 Log.d("onAddStreamRemote", "" + remoteVideoTrack);
@@ -161,7 +164,19 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
                     remoteVideoTrack.addSink(remoteView);
 
                 });
-
+//                if (thread) {
+//                    new Thread() {
+//                        public void run() {
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    remoteVideoTrack.addSink(remoteView);
+//                                }
+//                            });
+//
+//                        }
+//                    }.start();
+//                }
             }
         });
         peerConnection.addStream(mediaStream);
@@ -248,16 +263,11 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
     protected void onDestroy() { //앱 죽여 버릴떄 호출됨
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        Log.d(TAG, "onPeerLeave");
+
+//        thread = false;
+
         SignalingClient.get().destroy(); // 소켓으로 끊어 달라고 쏴줌
-
-
         peerConnection.dispose();
-
-
-
-
-
 
     }
 

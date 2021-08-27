@@ -138,15 +138,15 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         videoTrack.addSink(localView);
 
         //리모트뷰 
-        remoteViews = new SurfaceViewRenderer[]{
-                findViewById(R.id.remoteView),
-                findViewById(R.id.remoteView2),
-                findViewById(R.id.remoteView3),
-        };
-        for (SurfaceViewRenderer remoteView : remoteViews) {
-            remoteView.setMirror(false);
-            remoteView.init(eglBaseContext, null);
-        }
+//        remoteViews = new SurfaceViewRenderer[]{
+//                findViewById(R.id.remoteView),
+//                findViewById(R.id.remoteView2),
+//                findViewById(R.id.remoteView3),
+//        };
+//        for (SurfaceViewRenderer remoteView : remoteViews) {
+//            remoteView.setMirror(false);
+//            remoteView.init(eglBaseContext, null);
+//        }
 
 
         mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
