@@ -282,10 +282,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         Log.d("PeerHashMap" ," "+peerConnectionMap);
         SignalingClient.get().destroy();
         if (peerConnection ==null){
-            peerConnectionFactory.dispose();
             videoCapturer.dispose();
         }else{
-            peerConnectionFactory.dispose();
             peerConnection.dispose();
             videoCapturer.dispose();
             // 더 이상 카메라 eglRender가 돌아가지않도록 release ;

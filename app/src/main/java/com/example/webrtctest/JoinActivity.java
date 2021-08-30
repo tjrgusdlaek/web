@@ -163,21 +163,7 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
                 Log.d("onAddStreamRemote", "" + remoteVideoTrack);
                 runOnUiThread(() -> {
                     remoteVideoTrack.addSink(remoteView);
-
                 });
-//                if (thread) {
-//                    new Thread() {
-//                        public void run() {
-//                            runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    remoteVideoTrack.addSink(remoteView);
-//                                }
-//                            });
-//
-//                        }
-//                    }.start();
-//                }
             }
         });
         peerConnection.addStream(mediaStream);
