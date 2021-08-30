@@ -280,6 +280,9 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         Log.d("PeerHashMap" ," "+peerConnectionMap);
         SignalingClient.get().destroy();
         peerConnection.dispose();
+
+        localView.release();
+
     }
 
 

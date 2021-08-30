@@ -16,6 +16,7 @@ import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.EglBase10;
+import org.webrtc.EglRenderer;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
@@ -52,8 +53,8 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
     SurfaceViewRenderer[] remoteViews;
     SurfaceViewRenderer localView;
 
-    boolean thread = false;
-
+    DefaultVideoEncoderFactory defaultVideoEncoderFactory;
+    DefaultVideoDecoderFactory defaultVideoDecoderFactory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +76,10 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
 
         PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
 
-        DefaultVideoEncoderFactory defaultVideoEncoderFactory =
+         defaultVideoEncoderFactory =
                 new DefaultVideoEncoderFactory(eglBaseContext, true, true);
 
-        DefaultVideoDecoderFactory defaultVideoDecoderFactory =
+         defaultVideoDecoderFactory =
                 new DefaultVideoDecoderFactory(eglBaseContext);
 
 
@@ -156,7 +157,7 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
             @Override
             public void onAddStream(MediaStream mediaStream) {
                 super.onAddStream(mediaStream);
-//                thread = true;
+
                 remoteVideoTrack = mediaStream.videoTracks.get(0);
                 Log.d("onAddStreamRemote", "" + mediaStream.videoTracks.get(0).toString());
                 Log.d("onAddStreamRemote", "" + remoteVideoTrack);
@@ -242,7 +243,7 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
 
         Log.d(TAG, "onAnswerReceived" + data.toString());
         String socketId = data.optString("from");
-        peerConnection = getOrCreatePeerConnection(socketId);
+        PeerConnection peerConnection = getOrCreatePeerConnection(socketId);
         peerConnection.setRemoteDescription(new SdpAdapter("setRemoteSdp:" + socketId),
                 new SessionDescription(SessionDescription.Type.ANSWER, data.optString("sdp")));
     }
@@ -267,8 +268,19 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
 //        thread = false;
 
         SignalingClient.get().destroy(); // 소켓으로 끊어 달라고 쏴줌
-        peerConnection.dispose();
+        peerConnection.dispose(); //peer 연결 끊기
+//        defaultVideoDecoderFactory =null ;
+//        defaultVideoEncoderFactory = null ;
 
+//        eglBaseContext.getNativeEglContext();
+//        defaultVideoEncoderFactory =
+//                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
+//
+//        defaultVideoDecoderFactory =
+//                new DefaultVideoDecoderFactory(eglBaseContext);
+//
+//        remoteView.init(eglBaseContext,null);
+        remoteView.release();
     }
 
     @Override
