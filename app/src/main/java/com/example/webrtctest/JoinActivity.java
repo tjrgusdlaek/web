@@ -265,22 +265,11 @@ public class JoinActivity extends AppCompatActivity implements SignalingClient.C
         Log.d(TAG, "onDestroy");
         super.onDestroy();
 
-//        thread = false;
-
         SignalingClient.get().destroy(); // 소켓으로 끊어 달라고 쏴줌
         peerConnection.dispose(); //peer 연결 끊기
 //        defaultVideoDecoderFactory =null ;
 //        defaultVideoEncoderFactory = null ;
-
-//        eglBaseContext.getNativeEglContext();
-//        defaultVideoEncoderFactory =
-//                new DefaultVideoEncoderFactory(eglBaseContext, true, true);
-//
-//        defaultVideoDecoderFactory =
-//                new DefaultVideoDecoderFactory(eglBaseContext);
-//
-//        remoteView.init(eglBaseContext,null);
-        remoteView.release();
+        remoteView.release(); /// 더 이상 eglRender 가 돌아가지 않도록 release 해준다 .
     }
 
     @Override

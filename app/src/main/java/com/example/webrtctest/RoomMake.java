@@ -1,12 +1,12 @@
 package com.example.webrtctest;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class RoomMake extends AppCompatActivity {
 
@@ -24,7 +24,7 @@ public class RoomMake extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String roomName = et_roomName.getText().toString();
-                Intent intent = new Intent(RoomMake.this ,MainActivity.class);
+                Intent intent = new Intent(RoomMake.this , MainActivity.class);
                 intent.putExtra("roomName",roomName);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);

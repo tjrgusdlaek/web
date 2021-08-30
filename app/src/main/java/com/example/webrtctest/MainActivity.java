@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
     String roomName;
     private String TAG = "MAIN_ACTIVITY";
 
+    VideoCapturer videoCapturer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
 
         //비디오 트랙 채널과 소스
         SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBaseContext);
-        VideoCapturer videoCapturer = createCameraCapturer(true);
+        videoCapturer = createCameraCapturer(true);
         VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
         videoCapturer.initialize(surfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
         videoCapturer.startCapture(480, 640, 30);
@@ -279,9 +281,17 @@ public class MainActivity extends AppCompatActivity implements SignalingClient.C
         super.onDestroy();
         Log.d("PeerHashMap" ," "+peerConnectionMap);
         SignalingClient.get().destroy();
-        peerConnection.dispose();
+        if (peerConnection ==null){
+            peerConnectionFactory.dispose();
+            videoCapturer.dispose();
+        }else{
+            peerConnectionFactory.dispose();
+            peerConnection.dispose();
+            videoCapturer.dispose();
+            // 더 이상 카메라 eglRender가 돌아가지않도록 release ;
+        }
 
-        localView.release();
+        localView.release(); // 더 이상 카메라 eglRender가 돌아가지않도록 release ;
 
     }
 
